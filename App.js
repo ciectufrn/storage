@@ -20,27 +20,22 @@ export default function App() {
   async function takePicture() {
     if (!camera) return
     try {
-      const options = { quality: 0.7, base64: true };
+      const options = { quality: 0.7 };
       const photo = await camera.takePictureAsync(options)
-
-      let bytes = Buffer.from(photo.base64, 'base64').toJSON();
-
       const fileName = `${uuid.v4()}.jpg`;
       const metadata = {
         contentType: 'image/jpeg',
       }
-
+      const response = await fetch(photo.uri)
+      const blob = await response.blob()
       const storageRef = ref(storage, fileName);
-
-      console.log(typeof(bytes.data));
-
-      uploadBytes(storageRef, bytes.data, metadata).then((snapshot) => {
+      
+      uploadBytes(storageRef, blob, metadata).then((snapshot) => {
         console.log('Uploaded a blob or file!', fileName);
       });
     } catch (e) {
       console.log(e);
     }
-
   }
 
   if (!permission) {
